@@ -7,8 +7,23 @@ Carne: 0910-21-16654
 """ 
 import tkinter as tk 
 from tkinter import filedialog,messagebox
-import Levenshtein as lev 
- 
+import Levenshtein as lev
+
+"""
+diccionarios a usar
+
+numero
+operadores logicos
+operadores de condicion
+cadenas(opcional)
+palabras reservadas
+
+"""
+numero = ['1','2','3','4','5','6','7','8','9','10',]
+o_l = ['AND','And','OR','Or','NOT','Not']
+o_c = ['IF','if','THEN','then','ELSE','else','ELSEIF','elseif','END IF','end if']
+p_r = ['DIM','WORKSHEET','SUB','END SUB','AS','XLUP','CELLS','ROWS','CHECKBOX','MSBOX']  #PALABRAS RESERVADAS EN UN ARCHIVOS DE VISUAL BASIC, INCLUYEN MSBOX QUE SIRVE PARA MANDAR UNA ALERTA POR MEDIO DE UN CUADRO DE ALERTA
+
 def MetodoPrincipalAUTOMATAS(): 
     file_path = filedialog.askopenfilename(filetypes=[("Visual Basic Files", "*.vb")]) 
     if file_path: 
@@ -33,15 +48,53 @@ def save_file():
     if file_path: 
         with open(file_path, "w") as file: #SE ABRE EL ARCHIVO EN MODO ESCRITURA 
             file.write(code_text.get("1.0", tk.END)) #ESCRIBE UN CODIGO UTF EN NUESTRO ARCHIVO DE VISUAL BASIC Y LO ALMACENA 
+
+def separar_tokens():
+    cuadroPrincipal = code_text.get(1.0,tk.END)
+    lns = cuadroPrincipal.splitlines()
+    for lin in lns:        #empezamos a recorrer la variable lns, la cual almacena datos en la variable lin
+        tkns = lin.split()
+        for tkn in tkns:    #empezamos a recorrer la variable tkn la cual almacena datos en la variable tkns
+            results_text.insert(tk.END,f"{tkn},")   #vamos a modificar el 'results_text'
+        results_text.insert(tk.END,'\n')            #si no hay coincidencias, entonces sólo agregamos un fin de línea
  
+"""
 def get_tokens(): 
     code = code_text.get("1.0", tk.END) 
+    tks = code.splitlines()
     tokens = code.split() 
-    results_text.delete("1.0", tk.END) 
+    
     results_text.insert(tk.END, "Tokens:\n") 
     for token in tokens: 
-        results_text.insert(tk.END, f"{token}\n") 
- 
+        results_text.insert(tk.END, f"{token} , ") 
+"""
+def Clasificar_tokens():
+    cuadroSecundario = code_text.get("1.0",tk.END)
+    lns = cuadroSecundario.splitlines()
+    for lin in lns:
+        tkns = lin.split()
+        for index,tkn in tkns:
+            if index != len(tkns)-1:
+                tknout = tkn + ", "
+            else:
+                tknout = tkn
+            if tkn in o_l:
+                results_text.insert(tk.END,"o_l"+tknout)
+            results_text.insert(tk.END,"\n")
+            if tkn in o_c:
+                results_text.insert(tk.END,"o_C"+tknout)
+            results_text.insert(tk.END,"\n")
+            if tkn in numero:
+                results_text.insert(tk.END,"num"+tknout)
+            results_text.insert(tk.END,"\n")
+            if tkn in p_r:
+                results_text.insert(tk.END,"p_r"+tknout)
+            results_text.insert(tk.END,"\n")
+        results_text.insert(tk.END,"identificadores")
+        
+
+
+
 def classify_tokens(): 
     code = code_text.get("1.0", tk.END) 
     tokens = code.split() 
@@ -88,7 +141,7 @@ file_menu.add_command(label="Cerrar", command=root.destroy)# EL COMANDO DESTROY 
 # TOKENS" 
 tokens_menu = tk.Menu(menu_bar, tearoff=0) 
 menu_bar.add_cascade(label="Tokens", menu=tokens_menu) 
-tokens_menu.add_command(label="Obtener", command=get_tokens) 
+tokens_menu.add_command(label="Obtener", command=separar_tokens) 
 tokens_menu.add_command(label="Clasificar", command=classify_tokens) 
 
 root.protocol("WM_DELETE_WINDOW", on_close)
